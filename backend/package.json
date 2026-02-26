@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "ReWear Backend API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node utils/seed.js"
+  },
+  "keywords": ["rewear", "clothing", "exchange", "mern"],
+  "author": "ReWear Team",
+  "license": "MIT"
+}
