@@ -8,7 +8,31 @@
     "dev": "nodemon server.js",
     "seed": "node utils/seed.js"
   },
-  "keywords": ["rewear", "clothing", "exchange", "mern"],
+  "keywords": [
+    "rewear",
+    "clothing",
+    "exchange",
+    "mern"
+  ],
   "author": "ReWear Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^1.41.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.3.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "multer-storage-cloudinary": "^4.0.0",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "socket.io": "^4.8.3"
+  }
 }
