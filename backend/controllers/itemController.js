@@ -123,25 +123,24 @@ exports.getItem = async (req, res, next) => {
       .populate('owner', 'name avatar points badges location totalSwaps bio')
       .lean();
 
-    if (!item) {
-      return res.status(404).json({ success: false, message: 'Item not found' });
-    }
+   if (!item) {
+  return res.status(404).json({ success: false, message: 'Item not found' });
+}
 
-    // Increment view count
-    await Item.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
+// Increment view count
+await Item.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
 
-    // Get other items by same owner
-    const ownerItems = await Item.find({
-      owner: item.owner._id,
-      _id: { $ne: item._id },
-      status: 'approved',
-      isAvailable: true,
-    })
-      .limit(4)
-      .select('title images pointsValue condition')
-      .lean();
+// Get other items by same owner
+const ownerItems = await Item.find({
+  _id: { $ne: item._id },
+  status: 'approved',
+  isAvailable: true,
+})
+  .limit(4)
+  .select('title images pointsValue condition')
+  .lean();
 
-    res.json({ success: true, item, ownerItems });
+res.json({ success: true, item, ownerItems }); 
   } catch (error) {
     next(error);
   }
@@ -196,7 +195,7 @@ exports.getFeaturedItems = async (req, res, next) => {
     const items = await Item.find({ status: 'approved', isAvailable: true })
       .sort({ averageRating: -1, views: -1 })
       .limit(8)
-      .populate('owner', 'name avatar')
+      //.populate('owner', 'name avatar')//
       .lean();
 
     res.json({ success: true, items });

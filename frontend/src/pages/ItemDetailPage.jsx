@@ -111,6 +111,8 @@ const ItemDetailPage = () => {
 
   if (!item) return null;
 
+  console.log("Images data:", item.images);
+
   const images = item.images?.length > 0 ? item.images : [{ url: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600' }];
   const isOwner = user?._id === item.owner?._id;
   const conditionColors = { 'Brand New': '#22c55e', 'Like New': '#4DB6AC', 'Good': '#3b82f6', 'Fair': '#f59e0b', 'Worn': '#6b7280' };
