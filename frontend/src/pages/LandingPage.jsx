@@ -43,7 +43,7 @@ const categories = [
 
 const LandingPage = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
-  const [stats, setStats] = useState({ totalItemsReused: 2400, totalWaterSaved: 6480000, totalCarbonSaved: 6000, totalUsers: 1200 });
+  const [stats, setStats] = useState({ totalItemsReused: 0, totalWaterSaved: 0, totalCarbonSaved: 0, totalUsers: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
