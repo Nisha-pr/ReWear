@@ -89,10 +89,10 @@ const Footer = () => {
         {/* Stats bar */}
         <div style={{ borderTop: '1px solid rgba(165,214,167,0.2)', borderBottom: '1px solid rgba(165,214,167,0.2)', padding: '1.5rem 0', marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center' }}>
           {[
-            { value: '2,400+', label: 'Items Reused' },
-            { value: '6.5M L', label: 'Water Saved' },
-            { value: '6,000 kg', label: 'CO₂ Reduced' },
-            { value: '1,200+', label: 'Happy Users' },
+            { value: '0', label: 'Items Reused' },
+            { value: '0', label: 'Water Saved' },
+            { value: '0', label: 'CO₂ Reduced' },
+            { value: '0', label: 'Happy Users' },
           ].map(stat => (
             <div key={stat.label} style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: '1.4rem', color: '#4DB6AC' }}>{stat.value}</div>
