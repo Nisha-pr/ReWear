@@ -116,7 +116,7 @@ const LandingPage = () => {
               {/* Trust indicators */}
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
                 {[
-                  { label: '1200+ Users', icon: Users },
+                  { label: '0 Users', icon: Users },
                   { label: 'Free to Join', icon: Zap },
                   { label: '100% Secure', icon: Shield },
                 ].map(({ label, icon: Icon }) => (
@@ -176,7 +176,7 @@ const LandingPage = () => {
               { label: 'Items Reused', value: stats.totalItemsReused, suffix: '+', icon: Recycle, color: '#1B5E20' },
               { label: 'Liters Water Saved', value: Math.round((stats.totalWaterSaved || 0) / 1000), suffix: 'K L', icon: Droplets, color: '#0288D1' },
               { label: 'kg CO₂ Reduced', value: stats.totalCarbonSaved, suffix: ' kg', icon: Wind, color: '#4DB6AC' },
-              { label: 'Active Members', value: stats.totalUsers || 1200, suffix: '+', icon: Users, color: '#7B1FA2' },
+              { label: 'Active Members', value: stats.totalUsers || 0, suffix: '+', icon: Users, color: '#7B1FA2' },
             ].map(stat => (
               <motion.div
                 key={stat.label}
