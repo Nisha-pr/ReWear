@@ -27,7 +27,7 @@ const LoginPage = () => {
   };
 
   const handleOAuth = (provider) => {
-    window.location.href = `${import.meta.env.VITE_API_URL?.replace('/api', '')}/api/auth/${provider}`;
+    window.location.href = `https://rewear-nueo.onrender.com/api/auth/${provider}`;
   };
 
   return (
