@@ -26,9 +26,9 @@ const LoginPage = () => {
     }
   };
 
-  const handleOAuth = (provider) => {
-    window.location.href = `https://rewear-nueo.onrender.com/api/auth/${provider}`;
-  };
+const handleOAuth = (provider) => {
+  window.location.href = `http://localhost:5000/api/auth/${provider}`
+}
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'linear-gradient(135deg, #F5F5F5 0%, #E8F5E9 100%)' }}>

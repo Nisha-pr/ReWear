@@ -30,4 +30,10 @@ router.get(
   oauthCallback
 );
 
+// Firebase Auth
+router.post('/firebase', async (req, res) => {
+  const { firebaseLogin } = require('../controllers/authController');
+  return firebaseLogin(req, res);
+});
+
 module.exports = router;
