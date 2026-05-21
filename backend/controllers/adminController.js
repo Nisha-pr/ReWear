@@ -117,3 +117,28 @@ exports.getSustainabilityStats = async (req, res, next) => {
     next(error);
   }
 };
+
+// ─── Approve / Reject Item ────────────────────────────────────────────────────
+exports.reviewItem = async (req, res, next) => {
+  try {
+    const { status } = req.body; // 'approved' ya 'rejected'
+    
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status' });
+    }
+
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ success: false, message: 'Item not found' });
+
+    item.status = status;
+    await item.save();
+
+    res.json({
+      success: true,
+      message: `Item ${status} successfully`,
+      item,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

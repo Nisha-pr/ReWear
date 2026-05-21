@@ -30,7 +30,7 @@ const statusBadge = (status) => {
   return <span style={{ padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 700, color: s.color, background: s.bg }}>{s.label}</span>;
 };
 
-const TABS = ['Profile', 'My Listings', 'My Swaps', 'Impact'];
+const TABS = ['Profile', 'My Listings', 'My Swaps', 'Impact','Messages'];
 
 const DashboardPage = () => {
   const { user, updateUser } = useAuth();
@@ -350,6 +350,43 @@ const DashboardPage = () => {
                 </div>
               </div>
             )}
+
+            {/* ———— MESSAGES TAB ———————————————————————————— */}
+{activeTab === 'Messages' && (
+  <div>
+    <h2 style={{ fontFamily: 'Poppins', fontWeight: 700, fontSize: '1.2rem', marginBottom: '1.5rem' }}>
+      Messages ({swaps.length})
+    </h2>
+    {swaps.length > 0 ? (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {swaps.map(swap => (
+          <div key={swap._id} className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: '0.95rem', color: '#1a1a2e' }}>{swap.item?.title}</p>
+                <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>
+                  {swap.requester?._id === user?._id ? `You → ${swap.owner?.name}` : `${swap.requester?.name} → You`}
+                </p>
+              </div>
+              <Link
+                to={`/chat/${swap._id}`}
+                style={{ background: '#22c55e', color: 'white', padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.85rem', textDecoration: 'none' }}
+              >
+                💬 Open Chat
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
+        <h3 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>No messages yet</h3>
+        <p style={{ color: '#6B7280' }}>Start a swap to begin chatting!</p>
+      </div>
+    )}
+  </div>
+)}
 
           </motion.div>
         </AnimatePresence>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import {
   Leaf, Menu, X, Plus, User, LayoutDashboard,
-  LogOut, ShieldCheck, Bell, Search, ChevronDown
+  LogOut, ShieldCheck, Bell, Search, ChevronDown, MapPin
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -22,6 +22,7 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Browse', href: '/browse' },
+    { label: 'Nearby', href: '/nearby' },        // ← ADDED
     { label: 'How it Works', href: '/#how-it-works' },
     { label: 'Impact', href: '/#impact' },
   ];
@@ -51,7 +52,8 @@ const Navbar = () => {
                   padding: '0.5rem 1rem', borderRadius: '10px', textDecoration: 'none',
                   color: location.pathname === link.href ? '#1B5E20' : '#6B7280',
                   fontWeight: 500, fontSize: '0.9rem', transition: 'all 0.2s',
-                  background: location.pathname === link.href ? 'rgba(27,94,32,0.08)' : 'transparent'
+                  background: location.pathname === link.href ? 'rgba(27,94,32,0.08)' : 'transparent',
+                  display: 'flex', alignItems: 'center', gap: '0.3rem',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.color = '#1B5E20'; e.currentTarget.style.background = 'rgba(27,94,32,0.08)'; }}
                 onMouseLeave={e => {
@@ -61,6 +63,7 @@ const Navbar = () => {
                   }
                 }}
               >
+                {link.href === '/nearby' && <MapPin size={14} />}
                 {link.label}
               </a>
             ))}
@@ -127,6 +130,7 @@ const Navbar = () => {
 
                         {[
                           { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
+                          { icon: MapPin, label: 'Nearby Swaps', to: '/nearby' },   // ← ADDED
                           ...(isAdmin ? [{ icon: ShieldCheck, label: 'Admin Panel', to: '/admin' }] : []),
                           { icon: User, label: 'My Profile', to: '/dashboard' },
                         ].map(item => (
@@ -191,8 +195,9 @@ const Navbar = () => {
             >
               {navLinks.map(link => (
                 <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
-                  style={{ display: 'block', padding: '0.75rem 0.5rem', textDecoration: 'none', color: '#374151', fontWeight: 500 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 0.5rem', textDecoration: 'none', color: '#374151', fontWeight: 500 }}
                 >
+                  {link.href === '/nearby' && <MapPin size={15} color="#1B5E20" />}
                   {link.label}
                 </a>
               ))}

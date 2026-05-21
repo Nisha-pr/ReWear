@@ -17,6 +17,7 @@ const AddItemPage = lazy(() => import('./pages/AddItemPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ChatPage = lazy(() => import('./pages/ChatPage'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const LocationMap = lazy(() => import('./components/LocationMap')); // ← ADDED
 
 // Loading fallback
 const PageLoader = () => (
@@ -90,6 +91,13 @@ function App() {
               <Route path="/browse" element={<MainLayout><BrowsePage /></MainLayout>} />
               <Route path="/item/:id" element={<MainLayout><ItemDetailPage /></MainLayout>} />
 
+              {/* Location-based swap map — ADDED */}
+              <Route path="/nearby" element={
+                <MainLayout>
+                  <LocationMap />
+                </MainLayout>
+              } />
+
               <Route path="/add-item" element={
                 <ProtectedRoute>
                   <MainLayout><AddItemPage /></MainLayout>
@@ -145,3 +153,4 @@ function App() {
 }
 
 export default App;
+

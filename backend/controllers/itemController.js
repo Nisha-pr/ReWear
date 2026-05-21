@@ -9,6 +9,7 @@ exports.createItem = async (req, res, next) => {
     const {
       title, description, category, type, size,
       condition, pointsValue, tags, city, state, country,
+      lat, lng,  // ← NEW
     } = req.body;
 
     // Upload images to Cloudinary
@@ -31,8 +32,19 @@ exports.createItem = async (req, res, next) => {
       pointsValue: pointsValue || 50,
       tags: tags ? (Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim())) : [],
       owner: req.user._id,
-      location: { city, state, country },
-      status: 'pending', // Requires admin approval
+      status: 'pending',
+      location: {
+        city,
+        state,
+        country,
+        coordinates: {
+          type: 'Point',
+          coordinates: [
+            parseFloat(lng) || 0,  // MongoDB: longitude pehle
+            parseFloat(lat) || 0,  // phir latitude
+          ],
+        },
+      },
     });
 
     // Update user's itemsListed count
@@ -75,12 +87,15 @@ exports.getItems = async (req, res, next) => {
       query.$text = { $search: search };
     }
 
-    // Geospatial query
+    // Geospatial query — nearby items
     if (lat && lng) {
       query['location.coordinates'] = {
         $nearSphere: {
-          $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
-          $maxDistance: (radius || 50) * 1000, // km to meters
+          $geometry: {
+            type: 'Point',
+            coordinates: [parseFloat(lng), parseFloat(lat)],
+          },
+          $maxDistance: (parseFloat(radius) || 50) * 1000, // km → meters
         },
       };
     }
@@ -116,6 +131,60 @@ exports.getItems = async (req, res, next) => {
   }
 };
 
+// ─── Get Nearby Items (for LocationMap) ──────────────────────────────────────
+exports.getNearbyItems = async (req, res, next) => {
+  try {
+    const { lat, lng, radius = 50, category } = req.query;
+
+    if (!lat || !lng) {
+      return res.status(400).json({ success: false, message: 'lat and lng are required' });
+    }
+
+    const query = {
+      status: 'approved',
+      isAvailable: true,
+      'location.coordinates': {
+        $nearSphere: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [parseFloat(lng), parseFloat(lat)],
+          },
+          $maxDistance: parseFloat(radius) * 1000,
+        },
+      },
+    };
+
+    if (category && category !== 'all') {
+      query.category = { $regex: category, $options: 'i' };
+    }
+
+    const items = await Item.find(query)
+      .populate('owner', 'name avatar')
+      .limit(100)
+      .lean();
+
+    // Frontend ke liye clean format
+    const formatted = items.map(item => ({
+      id: item._id,
+      name: item.title,
+      size: item.size,
+      category: item.category.toLowerCase(),
+      user: item.owner?.name || 'User',
+      avatar: item.owner?.avatar || null,
+      image: item.images?.[0]?.url || null,
+      pointsValue: item.pointsValue,
+      condition: item.condition,
+      lat: item.location?.coordinates?.coordinates?.[1] || 0,
+      lng: item.location?.coordinates?.coordinates?.[0] || 0,
+      city: item.location?.city || '',
+    }));
+
+    res.json({ success: true, items: formatted });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ─── Get Single Item ──────────────────────────────────────────────────────────
 exports.getItem = async (req, res, next) => {
   try {
@@ -123,24 +192,24 @@ exports.getItem = async (req, res, next) => {
       .populate('owner', 'name avatar points badges location totalSwaps bio')
       .lean();
 
-   if (!item) {
-  return res.status(404).json({ success: false, message: 'Item not found' });
-}
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Item not found' });
+    }
 
-// Increment view count
-await Item.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
+    // Increment view count
+    await Item.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
 
-// Get other items by same owner
-const ownerItems = await Item.find({
-  _id: { $ne: item._id },
-  status: 'approved',
-  isAvailable: true,
-})
-  .limit(4)
-  .select('title images pointsValue condition')
-  .lean();
+    // Get other items by same owner
+    const ownerItems = await Item.find({
+      _id: { $ne: item._id },
+      status: 'approved',
+      isAvailable: true,
+    })
+      .limit(4)
+      .select('title images pointsValue condition')
+      .lean();
 
-res.json({ success: true, item, ownerItems }); 
+    res.json({ success: true, item, ownerItems });
   } catch (error) {
     next(error);
   }
@@ -151,7 +220,7 @@ exports.updateItem = async (req, res, next) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ success: false, message: 'Item not found' });
-    
+
     if (item.owner.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
@@ -195,7 +264,6 @@ exports.getFeaturedItems = async (req, res, next) => {
     const items = await Item.find({ status: 'approved', isAvailable: true })
       .sort({ averageRating: -1, views: -1 })
       .limit(8)
-      //.populate('owner', 'name avatar')//
       .lean();
 
     res.json({ success: true, items });

@@ -94,8 +94,8 @@ exports.getMe = async (req, res, next) => {
 // ─── OAuth Callback Handler ──────────────────────────────────────────────────
 exports.oauthCallback = (req, res) => {
   const token = req.user.generateToken();
-  // Redirect to frontend with token
-  res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
+  const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+  res.redirect(`${frontendURL}/auth/success?token=${token}`);
 };
 
 // ─── Logout ──────────────────────────────────────────────────────────────────
