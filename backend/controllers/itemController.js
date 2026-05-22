@@ -9,7 +9,7 @@ exports.createItem = async (req, res, next) => {
     const {
       title, description, category, type, size,
       condition, pointsValue, tags, city, state, country,
-      lat, lng,  // ← NEW
+      lat, lng,
     } = req.body;
 
     // Upload images to Cloudinary
@@ -32,7 +32,7 @@ exports.createItem = async (req, res, next) => {
       pointsValue: pointsValue || 50,
       tags: tags ? (Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim())) : [],
       owner: req.user._id,
-      status: 'pending',
+      status: 'approved',  // ← CHANGED: auto approve
       location: {
         city,
         state,
@@ -40,12 +40,19 @@ exports.createItem = async (req, res, next) => {
         coordinates: {
           type: 'Point',
           coordinates: [
-            parseFloat(lng) || 0,  // MongoDB: longitude pehle
-            parseFloat(lat) || 0,  // phir latitude
+            parseFloat(lng) || 0,
+            parseFloat(lat) || 0,
           ],
         },
       },
     });
+
+    // Update sustainability stats on every new item
+    await SustainabilityStats.findOneAndUpdate(
+      { singleton: true },
+      { $inc: { totalItemsReused: 1 } },
+      { upsert: true }
+    );
 
     // Update user's itemsListed count
     await User.findByIdAndUpdate(req.user._id, { $inc: { itemsListed: 1 } });
@@ -82,12 +89,10 @@ exports.getItems = async (req, res, next) => {
     }
     if (city) query['location.city'] = { $regex: city, $options: 'i' };
 
-    // Text search
     if (search) {
       query.$text = { $search: search };
     }
 
-    // Geospatial query — nearby items
     if (lat && lng) {
       query['location.coordinates'] = {
         $nearSphere: {
@@ -95,12 +100,11 @@ exports.getItems = async (req, res, next) => {
             type: 'Point',
             coordinates: [parseFloat(lng), parseFloat(lat)],
           },
-          $maxDistance: (parseFloat(radius) || 50) * 1000, // km → meters
+          $maxDistance: (parseFloat(radius) || 50) * 1000,
         },
       };
     }
 
-    // Sort options
     let sortObj = { createdAt: -1 };
     if (sort === 'popular') sortObj = { views: -1 };
     if (sort === 'rating') sortObj = { averageRating: -1 };
@@ -163,7 +167,6 @@ exports.getNearbyItems = async (req, res, next) => {
       .limit(100)
       .lean();
 
-    // Frontend ke liye clean format
     const formatted = items.map(item => ({
       id: item._id,
       name: item.title,
@@ -196,10 +199,8 @@ exports.getItem = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Item not found' });
     }
 
-    // Increment view count
     await Item.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
 
-    // Get other items by same owner
     const ownerItems = await Item.find({
       _id: { $ne: item._id },
       status: 'approved',
@@ -246,7 +247,6 @@ exports.deleteItem = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
-    // Delete images from Cloudinary
     for (const img of item.images) {
       if (img.publicId) await deleteFromCloudinary(img.publicId);
     }
@@ -301,7 +301,6 @@ exports.updateItemStatus = async (req, res, next) => {
 
     if (!item) return res.status(404).json({ success: false, message: 'Item not found' });
 
-    // If approved, update sustainability stats
     if (status === 'approved') {
       await SustainabilityStats.findOneAndUpdate(
         { singleton: true },
